@@ -8,6 +8,16 @@ const NameInput = ({ setPeer }) => {
     const navigate = useNavigate();
 
     const handleSubmit = () => {
+        const submitButton = document.getElementsByClassName('name-submit-button')[0];
+        if (submitButton) {
+            // make submit button disappear
+            submitButton.disabled = true;
+            submitButton.innerText = "Connecting...";
+        } else {
+            console.error("Submit button not found");
+            return;
+        }
+        
         console.log("Setting up peer connection...");
         const peer = new Peer(name);
 
@@ -29,6 +39,7 @@ const NameInput = ({ setPeer }) => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 className="name-input"
                 placeholder="Enter your name..."
             />

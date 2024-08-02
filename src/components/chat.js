@@ -2,17 +2,53 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./chat.css";
 
-const Chat = ({ peer, conn }) => {
+const Chat = ({ peer, conn, setConn }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
-
+    
     useEffect(() => {
         console.log('conn', conn);
         console.log('peer', peer);
         if (!conn) {
-            console.warn("No active connection, redirecting to home.");
-            navigate("/");
+            const peerId = new URLSearchParams(window.location.search).get("peer");
+            const connection = peer.connect(peerId.trim());
+            console.log("Connection established:", connection);
+            if (connection) {
+                connection.on("open", () => {
+                    console.log("Connected to peer:", connection.peer);
+                    setConn(connection);
+
+                    // Receive messages
+                    connection.on("data", (data) => {
+                        console.log("Received", data);
+                        setMessages((prevMessages) => [
+                            ...prevMessages,
+                            {
+                                id: Date.now(),
+                                user: connection.peer,
+                                message: data,
+                                time: new Date().toLocaleTimeString(),
+                                self: false
+                            }
+                        ]);
+                    });
+                });
+
+                connection.on("close", () => {
+                    console.log("Connection closed by peer");
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        {
+                            id: Date.now(),
+                            user: "System",
+                            message: "Peer has disconnected.",
+                            time: new Date().toLocaleTimeString(),
+                            self: false
+                        }
+                    ]);
+                });
+            }
             return;
         }
 
@@ -100,11 +136,12 @@ const Chat = ({ peer, conn }) => {
 
     return (
         <div className="chat-container">
-            <h1 className="chat-header">{peer.id}, you are chatting with {conn.peer}</h1>
+            <h1 className="chat-header">{peer ? peer.id : 'User'}, you are chatting with {conn ? conn.peer : 'Unknown'}</h1>
             <div className="chat-messages">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`chat-message ${msg.self ? "self" : "other"}`}>
-                        <p><strong>{msg.self ? "You" : msg.user}</strong> <span>({msg.time}):</span> {msg.message}</p>
+                        <p><strong>{msg.self ? "You" : msg.user}: </strong> {msg.message}</p>
+                        <span className="timestamp">{msg.time}</span>
                     </div>
                 ))}
             </div>
@@ -113,6 +150,7 @@ const Chat = ({ peer, conn }) => {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                     className="chat-input"
                     placeholder="Type a message..."
                 />

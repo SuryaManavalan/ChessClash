@@ -4,7 +4,6 @@ import "./dial.css";
 
 const Dial = ({ peer, conn, setConn }) => {
     const [peerName, setPeerName] = useState("");
-    const [localConn, setLocalConn] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,27 +15,25 @@ const Dial = ({ peer, conn, setConn }) => {
             });
 
             // Cleanup event listener on component unmount
-            return () => {
-                peer.off("connection");
-            };
+            // return () => {
+            //     peer.off("connection");
+            // };
         }
     }, [peer, setConn, navigate]);
 
-    useEffect(() => {
-        console.log("Connection established:", localConn);
-        if (localConn) {
-            localConn.on("open", () => {
-                console.log("Connected to peer:", peerName);
-                setConn(localConn);
-                navigate("/chat");
-            });
-        }
-    }, [localConn]);
-
     const handleSubmit = () => {
-        const connection = peer.connect(peerName);
+        const submitButton = document.getElementsByClassName('dial-submit-button')[0];
+        if (submitButton) {
+            // make submit button disappear
+            submitButton.disabled = true;
+            submitButton.innerText = "Connecting...";
+        } else {
+            console.error("Submit button not found");
+            return;
+        }
 
-        setLocalConn(connection);
+        // navigate to chat page with the peer name as a URL parameter
+        navigate(`/chat?peer=${peerName}`);
     };
 
     return (
@@ -46,6 +43,7 @@ const Dial = ({ peer, conn, setConn }) => {
                 type="text"
                 value={peerName}
                 onChange={(e) => setPeerName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 className="dial-input"
                 placeholder="Enter peer name..."
             />

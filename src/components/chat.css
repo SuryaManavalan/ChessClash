@@ -37,6 +37,17 @@
     transition: background 0.3s;
 }
 
+.chat-message p {
+    margin: 0;
+}
+
+.chat-message .timestamp {
+    display: block;
+    font-size: 9px;
+    opacity: 0.6;
+    margin-top: 5px;
+}
+
 .chat-message.self {
     background: #4b4b5e;
     align-self: flex-end;
