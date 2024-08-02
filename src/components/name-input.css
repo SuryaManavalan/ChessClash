@@ -1,0 +1,54 @@
+/* NameInput.css */
+.name-input-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #1e1e2e;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+}
+
+.name-input-header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #f0f0f0;
+}
+
+.name-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #33334a;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 20px;
+}
+
+.name-input::placeholder {
+    color: #999;
+}
+
+.name-submit-button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: #5858d6;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.name-submit-button:hover {
+    background: #7373e6;
+}
