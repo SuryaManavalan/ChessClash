@@ -1,15 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./chat.css";
+import Chessboard from "./chessboard";
+import { move } from "chessground/drag";
 
 const Chat = ({ peer, conn, setConn }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
-    
+
+    const chessboardRef = useRef(null);
+    const [color, setColor] = useState('white');
+
     useEffect(() => {
-        console.log('conn', conn);
-        console.log('peer', peer);
+        const type = new URLSearchParams(window.location.search).get("type");
+        if (type === "incoming") {
+            setColor('black');
+        } else {
+            setColor('white');
+        }
+
+        console.log("Connection:", conn);
+
         if (!conn) {
             const peerId = new URLSearchParams(window.location.search).get("peer");
             const connection = peer.connect(peerId.trim());
@@ -19,19 +31,31 @@ const Chat = ({ peer, conn, setConn }) => {
                     console.log("Connected to peer:", connection.peer);
                     setConn(connection);
 
-                    // Receive messages
+                    // Receive messages (connector peer)
                     connection.on("data", (data) => {
-                        console.log("Received", data);
-                        setMessages((prevMessages) => [
-                            ...prevMessages,
-                            {
-                                id: Date.now(),
-                                user: connection.peer,
-                                message: data,
-                                time: new Date().toLocaleTimeString(),
-                                self: false
+
+                        if (data.startsWith('<chess>')) {
+                            const move = data.substring(7);
+                            console.log(`Received move: ${move}`);
+                            const [from, to] = [move.substring(0, 2), move.substring(2, 4)];
+                            console.log(`Moving from ${from} to ${to}`);
+                            if (chessboardRef.current) {
+                                chessboardRef.current.move(from, to);
                             }
-                        ]);
+                            return;
+                        } else {
+                            console.log("Received", data);
+                            setMessages((prevMessages) => [
+                                ...prevMessages,
+                                {
+                                    id: Date.now(),
+                                    user: conn.peer,
+                                    message: data,
+                                    time: new Date().toLocaleTimeString(),
+                                    self: false
+                                }
+                            ]);
+                        }
                     });
                 });
 
@@ -56,19 +80,31 @@ const Chat = ({ peer, conn, setConn }) => {
         conn.on("open", () => {
             console.log("Connection opened with", conn.peer);
 
-            // Receive messages
+            // Receive messages (connected-to peer)
             conn.on("data", (data) => {
-                console.log("Received", data);
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    {
-                        id: Date.now(),
-                        user: conn.peer,
-                        message: data,
-                        time: new Date().toLocaleTimeString(),
-                        self: false
+                // check if the message is a move (has prefix '<chess>' ex. '<chess>e2e4')
+                if (data.startsWith('<chess>')) {
+                    const move = data.substring(7);
+                    console.log(`Received move: ${move}`);
+                    const [from, to] = [move.substring(0, 2), move.substring(2, 4)];
+                    console.log(`Moving from ${from} to ${to}`);
+                    if (chessboardRef.current) {
+                        chessboardRef.current.move(from, to);
                     }
-                ]);
+                    return;
+                } else {
+                    console.log("Received", data);
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        {
+                            id: Date.now(),
+                            user: conn.peer,
+                            message: data,
+                            time: new Date().toLocaleTimeString(),
+                            self: false
+                        }
+                    ]);
+                }
             });
         });
 
@@ -134,10 +170,22 @@ const Chat = ({ peer, conn, setConn }) => {
         }
     };
 
+    const handleMove = (from, to) => {
+        const move = `<chess>${from}${to}`;
+        console.log(`Sending move: ${move}`);
+        conn.send(move);
+    };
+
     return (
         <div className="chat-container">
-            <h1 className="chat-header">{peer ? peer.id : 'User'}, you are chatting with {conn ? conn.peer : 'Unknown'}</h1>
-            <div className="chat-messages">
+            <h1 className="chat-header">{peer ? peer.id : 'User'}, you are playing against {conn ? conn.peer : 'Unknown'}</h1>
+            {conn && (
+                <div className="chat-chessboard">
+                    <Chessboard ref={chessboardRef} color={color} handleMove={handleMove} />
+                </div>
+            )}
+            <button onClick={handleHangUp} className="chat-hangup-button">Hang Up</button>
+            {/* <div className="chat-messages">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`chat-message ${msg.self ? "self" : "other"}`}>
                         <p><strong>{msg.self ? "You" : msg.user}: </strong> {msg.message}</p>
@@ -156,7 +204,7 @@ const Chat = ({ peer, conn, setConn }) => {
                 />
                 <button onClick={handleSubmit} className="chat-send-button">Send</button>
                 <button onClick={handleHangUp} className="chat-hangup-button">Hang Up</button>
-            </div>
+            </div> */}
         </div>
     );
 };

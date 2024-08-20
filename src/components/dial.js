@@ -11,7 +11,7 @@ const Dial = ({ peer, conn, setConn }) => {
             peer.on("connection", (incomingConn) => {
                 console.log("Received incoming connection:", incomingConn);
                 setConn(incomingConn);
-                navigate("/chat");
+                navigate("/chat?type=incoming");
             });
 
             // Cleanup event listener on component unmount

@@ -3,8 +3,8 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: #1e1e2e;
-    color: white;
+    background: #f0d9b5;
+    color: rgb(83, 81, 81);
     font-family: 'Arial', sans-serif;
     padding: 20px;
     box-sizing: border-box;
@@ -17,7 +17,7 @@
     margin-bottom: 20px;
     font-size: 24px;
     font-weight: 700;
-    color: #f0f0f0;
+    color: rgb(83, 81, 81);
 }
 
 .name-input {
@@ -26,7 +26,7 @@
     padding: 10px;
     border-radius: 10px;
     border: none;
-    background: #33334a;
+    background: #c0ae91;
     color: white;
     font-size: 16px;
     outline: none;
@@ -34,14 +34,14 @@
 }
 
 .name-input::placeholder {
-    color: #999;
+    color: white;
 }
 
 .name-submit-button {
     padding: 10px 20px;
     border-radius: 10px;
     border: none;
-    background: #5858d6;
+    background: #c0ae91;
     color: white;
     cursor: pointer;
     font-size: 16px;
