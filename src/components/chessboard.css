@@ -1,0 +1,22 @@
+.play-again-button{
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: rgb(83, 81, 81);
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.play-again-button:hover {
+    background: #7373e6;
+}
+
+h3{
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}

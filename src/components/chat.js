@@ -43,6 +43,12 @@ const Chat = ({ peer, conn, setConn }) => {
                                 chessboardRef.current.move(from, to);
                             }
                             return;
+                        }
+                        else if (data === "<playagain>") {
+                            console.log("Received play again request");
+                            if (chessboardRef.current) {
+                                chessboardRef.current.playAgain();
+                            }
                         } else {
                             console.log("Received", data);
                             setMessages((prevMessages) => [
@@ -92,6 +98,12 @@ const Chat = ({ peer, conn, setConn }) => {
                         chessboardRef.current.move(from, to);
                     }
                     return;
+                }
+                else if (data === "<playagain>") {
+                    console.log("Received play again request");
+                    if (chessboardRef.current) {
+                        chessboardRef.current.playAgain();
+                    }
                 } else {
                     console.log("Received", data);
                     setMessages((prevMessages) => [
@@ -176,12 +188,19 @@ const Chat = ({ peer, conn, setConn }) => {
         conn.send(move);
     };
 
+    const sendPlayAgain = () => {
+        // if (conn) {
+            console.log("Sending play again request");
+            conn.send("<playagain>");
+        // }
+    }
+
     return (
         <div className="chat-container">
             <h1 className="chat-header">{peer ? peer.id : 'User'}, you are playing against {conn ? conn.peer : 'Unknown'}</h1>
             {conn && (
                 <div className="chat-chessboard">
-                    <Chessboard ref={chessboardRef} color={color} handleMove={handleMove} />
+                    <Chessboard ref={chessboardRef} color={color} handleMove={handleMove} sendPlayAgain={sendPlayAgain} />
                 </div>
             )}
             <button onClick={handleHangUp} className="chat-hangup-button">Hang Up</button>
